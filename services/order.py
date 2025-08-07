@@ -11,14 +11,12 @@ def create_order(
         date: datetime.datetime | None = None,
 ) -> None:
     with transaction.atomic():
-        user = User.objects.get(
-            username=username,
-        )
-        order_kwargs = {"user": user}
-        if date:
-            order_kwargs["created_at"] = date
+        user = User.objects.get(username=username)
+        order = Order.objects.create(user=user)
 
-        order = Order.objects.create(**order_kwargs)
+        if date:
+            Order.objects.filter(pk=order.pk).update(created_at=date)
+            order.refresh_from_db()
 
         for ticket in tickets:
             movie_session_obj = MovieSession.objects.get(
@@ -33,8 +31,7 @@ def create_order(
 
 
 def get_orders(username: str | None = None) -> None:
-    with transaction.atomic():
-        order_obj = Order.objects.all()
-        if username:
-            order_obj = order_obj.filter(user__username=username)
+    order_obj = Order.objects.all()
+    if username:
+        order_obj = order_obj.filter(user__username=username)
     return order_obj

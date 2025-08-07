@@ -103,15 +103,7 @@ class Ticket(models.Model):
         super().save(*args, **kwargs)
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=[
-                    "movie_session",
-                    "row",
-                    "seat"],
-                name="unique_cinema_hall"
-            )
-        ]
+        unique_together = ("movie_session", "row", "seat")
 
 
 class User(AbstractUser):
